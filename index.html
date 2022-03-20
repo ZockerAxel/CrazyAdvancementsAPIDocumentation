@@ -1,0 +1,359 @@
+<html>
+    <head>
+        <title>CrazyAdvancementsAPI Docs</title>
+        <link href="icon.jpg" rel="icon">
+        <meta name="theme-color" content="#F1AF15">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="utf-8">
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+        <link href="style.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="navbar">
+            <h1>CrazyAdvancementsAPI</h1>
+            <a class="external" href="https://www.spigotmc.org/resources/crazy-advancements-api.51741/" target="_blank">Spigot</a>
+            <a class="external" href="https://github.com/ZockerAxel/CrazyAdvancementsAPI" target="_blank">Github</a>
+            <a class="external" href="https://javadoc.crazyadvancements.endercentral.eu/" target="_blank">Javadoc</a>
+            <a class="external" href="https://docs.crazyadvancements.endercentral.eu/downloads/" target="_blank">Downloads</a>
+        </div>
+        <div class="docs">
+            <p>
+                This is the Official Documentation for the CrazyAdvancementsAPI<br>
+                This document is supposed to serve as a place to start for Newcomers<br>
+                If you have any further questions or requests, feel free to join the Community on the
+                <a class="external" href="https://discord.gg/qmMVJNT" target="_blank">Official Discord Server</a>
+            </p>
+            <section>
+                <div class="title">Getting Started</div>
+                <div class="content">
+                    <section>
+                        <div class="title">Creating Advancements</div>
+                        <div class="content">
+                            <h1>Creating the Display</h1>
+                            <p>
+                                To create an Advancement you need to create your Display first. The display will contain information like Icon, Title, 
+                                Description, Frame, Visibility Options, Background Texture and Positioning. So let's create variables for the required
+                                options
+                            </p>
+                            <p>
+                                First off, lets look at the Icon
+                            </p>
+                            <div class="code">ItemStack icon = new ItemStack(Material.STONE);</div>
+                            <p>
+                                As you can see, the Icon is just a regular spigot ItemStack. However you can also parse a Material to the constructor
+                                in case you don't need to apply things like Enchantments or SkullOwners
+                            </p>
+                            <p>
+                                Next up, lets look at the Title and Description. They are of type JSONMessage which takes a BaseComponent as a parameter
+                            </p>
+                            <div class="code">JSONMessage title = new JSONMessage(new TextComponent("Title"));
+JSONMessage description = new JSONMessage(new TextComponent("Description"));</div>
+                            <p>
+                                If you want to use colors ore other formatting, look at <a href="https://www.spigotmc.org/wiki/the-chat-component-api/">
+                                the Spigot page on the Chat Component API</a>
+                            </p>
+                            <p>
+                                Next on our list is a fairly straightforward item: the Frame
+                                <br>
+                                It sets the outline that will be visible in the Advancement Screen and will decide which message will be displayed
+                                when you get the Advancement in the Toast Notification and play a Sound if it's a Challenge
+                            </p>
+                            <div class="code">AdvancementFrame frame = AdvancementFrame.TASK;</div>
+                            <p>
+                                There are 3 options to choose from: TASK, GOAL and CHALLENGE
+                            </p>
+                            <p>
+                                Last but not least we have the Visibility. You can either select from one of the pre-made Visibilities or implement your 
+                                own rules
+                            </p>
+                            <div class="code">AdvancementVisibility visibility = AdvancementVisibility.ALWAYS;</div>
+                            <p>
+                                There are 4 Visiblities included in the API:<br>
+                                ALWAYS: Is always shown<br>
+                                PARENT_GRANTED: Only shown, when parent is granted or any child is granted<br>
+                                VANILLA: Only shown, when parent of parent is granted or any child is granted<br>
+                                HIDDEN: Only shown when granted or any child is granted<br>
+                                <br>
+                                If you want to implement your own Rules, create a new instance of AdvancementVisibility or extend it<br>
+                                Keep in mind that you might need to update visibility in your Managers if your Visibility Rules rely on
+                                something else than an Advancement's Granted Status or an Advancement that is in a different tab and/or in a different
+                                Manager
+                            </p>
+                            <div class="code">new AdvancementVisibility() {
+    
+    @Override
+    public boolean isVisible(Player player, Advancement advancement) {
+        if(advancement.isGranted(player)) return true;
+        Advancement parent = advancement.getParent();
+
+        return parent == null || parent.isGranted(player);
+    }
+};</div>
+                            <p>
+                                Now that we have the required parameters ready, let's create the Display
+                            </p>
+                            <div class="code">ItemStack icon = new ItemStack(Material.STONE);
+JSONMessage title = new JSONMessage(new TextComponent("Title"));
+JSONMessage description = new JSONMessage(new TextComponent("Description"));
+AdvancementFrame frame = AdvancementFrame.TASK;
+AdvancementVisibility visibility = AdvancementVisibility.ALWAYS;
+AdvancementDisplay display = new AdvancementDisplay(icon, title, description, frame, visibility);</div>
+                            <h1>Additional Display Options</h1>
+                            <p>
+                                First off, we have the Background Texture. It only has a purpose for Root Advancements (Advancements that define
+                                an Advancement Tab). The Background Texture is a direct path to the Texture File you want the player to see.
+                            </p>
+                            <div class="code">display.setBackgroundTexture("textures/block/yellow_concrete.png");</div>
+                            <p>
+                                Next up, you should also position your Advancement correctly. You can set a position Origin which will be the Advancement
+                                your Advancement will be relative to. If you don't specify an Origin, the Root Advancement of the Tab will be used
+                                as an Origin. You then set the relative coordinates (float values).
+                            </p>
+                            <div class="code">display.setPositionOrigin(parent);
+display.setX(1);
+display.setY(1.5);</div>
+                            <h1>Creating the Advancement</h1>
+                            <p>
+                                Now that we have created our Display, we can move on to creating the Advancement itself. Advancements take a parent, 
+                                a name, a display and a list of flags as parameters. You can ommit the parent or set it to null to make the 
+                                Advancement create a new tab. You may also ommit the Flags if you don't want to apply any.
+                            </p>
+                            <div class="code">Advancement rootAdvancement = new Advancement(new NameKey("your_namespace", "advancement_name"), display);</div>
+                            <div class="code">Advancement advancement = new Advancement(parentAdvancement, new NameKey("your_namespace", "different_advancement_name"), display);</div>
+                            <div class="code">Advancement advancement = new Advancement(parentAdvancement, new NameKey("your_namespace", "another_advancement_name"), display, AdvancementFlag.SHOW_TOAST, AdvancementFlag.DISPLAY_MESSAGE);</div>
+                            <p>
+                                The Name is a unique identifier for your Advancement. You should only have a couple of different namespaces for your
+                                own project to prevent other projects from having the same namespace, so choose something unique.<br><br>
+                                The available Advancement Flags include:<br>
+                                SHOW_TOAST: Toast will be shown when Advancement is granted<br>
+                                DISPLAY_MESSAGE: Message will be displayed when someone gets an Advancement<br>
+                                SEND_WITH_HIDDEN_BOOLEAN: The Advancement will be sent with the hidden boolean set to true which makes it possible to
+                                create empty tabs when the Root Advancement has the hidden boolean and there are no children<br>
+                                TOAST_AND_MESSAGE: Shorthand for combining SHOW_TOAST and DISPLAY_MESSAGE
+                            </p>
+                            <h1>Additional Advancement Options</h1>
+                            <p>
+                                Now we have an Advancement that can either be granted or not, but you might want to have Advancements where
+                                multiple Criteria needs to be met. Thats why you can set the Criteria you want.<br><br>
+                                There are two types of Criteria:<br>
+                                - Criteria where a certain number needs to be reached<br>
+                                - Criteria where a list of requirements must be met
+                            </p>
+                            <p>
+                                Lets look at the simpler one first: The Criteria where a certain number needs to be reached:
+                            </p>
+                            <div class="code">advancement.setCriteria(new Criteria(5));</div>
+                            <p>
+                                As you might have guessed, this makes it so the target Number is 5
+                            </p>
+                            <p>
+                                So let's move on to the more complicated one. For this one you have to pass the Constructor a String Array and a
+                                nested String Array. The first one lists all the names that you give your requirements. The second one is basically
+                                an AND group of OR groups.
+                            </p>
+                            <div class="code">advacnement.setCriteria(new Criteria(new String[] {"a", "b", "c"}, new String[][] {{"a", "b"}, {"c"}}););</div>
+                            <p>
+                                The above example has 3 different actions but only two of them need to be completed. The Advancement will be granted
+                                if the Player has a and c and it will also be granted if the Player has b and c. Obviously it will also be granted if
+                                the Player meets all 3 requirements.
+                            </p>
+                            <h1>Advancement Rewards</h1>
+                            <p>
+                                You can also set a Reward to completing your Advancement.
+                            </p>
+                            <div class="code">advancement.setReward(new AdvancementReward() {
+    
+    @Override
+    public void onGrant(Player player) {
+        player.giveExp(1);
+    }
+});</div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <div class="title">Advancement Managers</div>
+                        <div class="content">
+                            <h1>What are Advancement Managers?</h1>
+                            <p>
+                                A Advancement Manager is a place to group Advancements and Players together. Generally you want to group as many
+                                Advancements and players together as you can.<br>
+                                However there are practical applications like having one manager per Player or different Managers for different
+                                parts of your project.
+                            </p>
+                            <h1>Creating Advancement Managers</h1>
+                            <p>
+                                To create one, you just need to create a new instance of the AdvancementManager class. It takes a Name and optionally
+                                an array of Players you want to have in the Manager from the start.<br>
+                                The Name is used when you make your manager accessible and will also determine the Save Path if you use the Save Methods
+                            </p>
+                            <div class="code">AdvancementManager manager = new AdvancementManager(new NameKey("your_namespace", "manager_name"));</div>
+                            <div class="code">AdvancementManager manager = new AdvancementManager(new NameKey("your_namespace", "manager_name", player1, player2));</div>
+                            <p>
+                                Instead of seperating the Players by comma, you may also just pass an Array as the second argument.
+                            </p>
+                            <h1>Managing Players</h1>
+                            <p>
+                                To add or remove Players simply call the respective methods.
+                            </p>
+                            <div class="code">manager.addPlayer(player);</div>
+                            <div class="code">manager.removePlayer(player);</div>
+                            <h1>Managing Advancements</h1>
+                            <p>
+                                To add or remove Advancements simply call the respective methods. Advancements can also be added or removed in bulk by
+                                passing an Array but always keep in mind that Advancements should always be added after their parent.
+                            </p>
+                            <div class="code">manager.addAdvancement(rootAdvancement, advancement);</div>
+                            <div class="code">manager.removeAdvancement(rootAdvancement, advancement);</div>
+                            <p>
+                                If you changed your Advancement somehow, you may update it to the Player
+                            </p>
+                            <div class="code">manager.updateAdvancement(advancement);</div>
+                            <h1>Granting/Revoking Advancements</h1>
+                            <p>
+                                To Grant or Revoke Advancements you simply need to call the respective methods.
+                            </p>
+                            <div class="code">manager.grantAdvancement(player, advancement);</div>
+                            <div class="code">manager.revokeAdvancement(player, advancement);</div>
+                            <p>
+                                These Methods will also return a Result which will tell you whether the operation left the Progress unchanged or changed<br>
+                                You may also grant or revoke specific criteria:
+                            </p>
+                            <div class="code">manager.grantCriteria(player, advancement, "a", "b");</div>
+                            <div class="code">manager.revokeCriteria(player, advancement, "a", "b");</div>
+                            <p>
+                                The above examples will either grant or revoke the criteria names a and b. These methods will also return a Result, the
+                                Grant Method also has an additional Result Option that will tell you whether this operation has completed the
+                                Advancement.
+                            </p>
+                            <h1>Criteria Progress</h1>
+                            <p>
+                                If the Advancement's Criteria Type is NUMBER, you may also set the criteria progress.
+                            </p>
+                            <div class="code">manager.setCriteriaProgress(player, advancement, 3);</div>
+                            <p>
+                                The above example will set the number the player has reached so far. This method also returns a Result which can be
+                                unchanged, changed, completed or invalid if the Criteria Type does not match.
+                            </p>
+                        </div>
+                    </section>
+                    <section>
+                        <div class="title">Saving and Loading Progress</div>
+                        <div class="content">
+                            <h1>Saving and Loading Progress to the default Directory</h1>
+                            <p>
+                                If you only have one server where the Advancements apply this is the normal way to save Advancements as they will be
+                                stored within the plugin folder of the Server.<br>
+                                The nested directory depends on your Advancement Managers name<br>
+                                To save or load Data you have to pass a player and optionally a list of Advancements. If no Advancements are listed, all
+                                Advancements in the Manager will be saved/loaded, otherwise only the selected Advancements will be saved/loaded
+                            </p>
+                            <div class="code">manager.saveProgress(player);</div>
+                            <div class="code">manager.saveProgress(player, rootAdvancement, advancement);</div>
+                            <div class="code">manager.loadProgress(player);</div>
+                            <div class="code">manager.loadProgress(player, rootAdvancement, advancement);</div>
+                            <h1>Saving and Loading Progress in General</h1>
+                            <p>
+                                If you don't want to use the default Directory you can just create a new Save File Object and save the output json
+                                whereever you want.
+                            </p>
+                            <div class="code">manager.createNewSave(player);</div>
+                            <div class="code">manager.createNewSave(player, rootAdvancement, advancement);</div>
+                            <div class="code">SaveFile saveFile = SaveFile.fromJSON(""/*Insert the JSON String here*/);
+manager.loadProgress(player, saveFile);</div>
+                        </div>
+                    </section>
+                    <section>
+                        <div class="title">Advancement Screen</div>
+                        <div class="content">
+                            <h1>Changing the selected Advancement Tab</h1>
+                            <p>
+                                You may change the Tab a Player is viewing. Note that this will not open the Advancement Screen but the player will
+                                still see the tab as soon as they open their Advancement Screen. The tab needs to be a NameKey. Just get the
+                                Name of the Root Advancement you want to set active and pass it.
+                            </p>
+                            <div class="code">CrazyAdvancements.setActiveTab(player, nameKey);</div>
+                            <h1>Getting the selected Advancement Tab</h1>
+                            <p>
+                                You may also get the current Tab. Keep in mind that this is a cached value and there may be certain situations where
+                                this value is incorrect.
+                            </p>
+                            <div class="code">CrazyAdvancementsAPI.getActiveTab(player);</div>
+                            <h1>Detecting Player Interaction</h1>
+                            <p>
+                                You can detect when a Player changes their current tab or when they close their Advancement Screen by listening to
+                                the respective events:<br>
+                                - AdvancementTabChangeEvent: Is called when a player changes their tab or when they open their Advancement Screen<br>
+                                - AdvancementScreenCloseEvent: Is called when a player closes their Advancement Screen
+                            </p>
+                        </div>
+                    </section>
+                    <section>
+                        <div class="title">Toast Notifications</div>
+                        <div class="content">
+                            <h1>What are Toast Notifications?</h1>
+                            <p>
+                                Toast Notifications are Notifications that are displayed in the form of Advancement Toasts and don't require additional
+                                setup like Advancements need with their Advancement Manager.
+                            </p>
+                            <h1>Creating a Toast Notification</h1>
+                            <p>
+                                To create a new Toast Notification, you just have to create a new instance of the ToastNofication class.<br>
+                                It takes an icon, a description and a frame as arguments.
+                            </p>
+                            <div class="code">ToastNotification notification = new ToastNotification(icon, description, frame);</div>
+                            <p>
+                                The icon is an ItemStack, the description is a JSONMessage and the Frame is an AdvancementFrame.<br>
+                                You then just have to send the notification to the player.
+                            </p>
+                            <div class="code">notification.send(player);</div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+            <section>
+                <div class="title">Advanced Features</div>
+                <div class="content">
+                    <section>
+                        <div class="title">Advancement Packets</div>
+                        <div class="content">
+                            <h1>Why should you send Advancement Packets yourself?</h1>
+                            <p>
+                                There are many reasons to send Packets yourself, i especially recommend it if you have a setup where you don't add
+                                advancements after the first add where it is very important that advancements and tabs remain in a specified order.<br>
+                                Because you control when packets are sent you have more control over when things update and you are able to prevent
+                                unexpected situations.
+                            </p>
+                            <h1>How do you send an Advancements Packet?</h1>
+                            <p>
+                                You just need to create a new instance of the AdvancementsPacket class. It takes 4 arguments: A player, a reset
+                                boolean, a list of advancements and a list of NameKeys.<br>
+                                If the reset boolean is set to true, the Player's Advancement Screen will be completely wiped before adding the
+                                Advancements in the advancement list.<br>
+                                The list of NameKeys describes a list of Advancements to remove<br>
+                                If you want to update progress, just include the Advancement in the advancement list
+                            </p>
+                            <div class="code">AdvancementsPacket packet = new AdvancementsPacket(player, false, advancements, removedAdvancements);
+packet.send();</div>
+                            <p>
+                                Keep in mind that these packets will not trigger Toasts if Advancements get completed, for Toasts use Toast Notifications.
+                            </p>
+                            <h1>Granting/Revoking Advancements and Criteria</h1>
+                            <p>
+                                If you send Advancement Packets yourself, you shouldn't add the Advancements to a Manager, to manage Criteria, use
+                                the Advancement's Progress
+                            </p>
+                            <div class="code">AdvancementProgress progress = advancement.getProgress(player);</div>
+                            <div class="code">progress.grant();</div>
+                            <div class="code">progress.grantCriteria("a", "b");</div>
+                            <div class="code">progress.revoke();</div>
+                            <div class="code">progress.revokeCriteria("a", "b");</div>
+                            <div class="code">progress.setCriteriaProgress(3);</div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </div>
+        <script src="main.js" type="text/javascript"></script>
+    </body>
+</html>

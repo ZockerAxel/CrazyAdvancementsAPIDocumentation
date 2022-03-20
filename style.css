@@ -1,0 +1,159 @@
+:root {
+    font-size: 62.5%;/*Make rems be multiples of 10px so i can adjust it more easily*/
+    height: 100%;
+    width: 100vw;
+    font-family: 'Roboto', sans-serif;
+
+    --api-color: hsl(42, 89%, 51%);
+}
+
+* {
+    box-sizing: border-box;
+    font-size: inherit;
+    font-family: inherit;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
+
+div.navbar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0.8rem;
+    align-items: center;
+    font-size: 2.5rem;
+    background-color: var(--api-color);
+}
+
+div.navbar > * {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+div.navbar > *:first-child {
+    margin-left: 1em;
+    margin-right: 0;
+}
+
+div.navbar > *:last-child {
+    margin-right: 10em;
+}
+
+@media (max-width: 600px) {
+    div.navbar {
+        flex-direction: column !important;
+        padding-bottom: 0.8rem;
+    }
+    div.navbar > * {
+        margin-left: 1rem !important;
+        margin-right: auto !important;
+    }
+}
+
+a.external {
+    text-decoration: none;
+    color: hsl(245, 86%, 36%);
+}
+
+a.no-style {
+    all: unset;
+    cursor: pointer;
+}
+
+div.docs {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    flex-grow: 1;
+    font-size: 1.8rem;
+    padding: 0.2rem;
+    width: 100%;
+    border: 1rem solid hsl(198, 16%, 84%);
+    overflow-x: hidden;
+    background-color: white;
+}
+
+div.docs > section {
+    margin-left: 0;
+}
+
+section {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-left: 2em;
+}
+
+section > div.title {
+    font-size: 2rem;
+    color: hsl(212, 92%, 45%);
+    cursor: pointer;
+}
+
+section > div.content {
+    display: none;
+}
+
+div.content.show {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+}
+
+div.content > h1 {
+    font-size: 2rem;
+    padding-left: 0.5em;
+}
+
+div.content > p {
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+div.code {
+    padding: 1em;
+    border-radius: 1em;
+    color: hsl(103, 44%, 89%);
+    background-color: hsl(210, 100%, 12%);
+    user-select: all;
+    white-space: pre;
+}
+
+div.code::selection {
+    color: black;
+    background: var(--api-color);
+}
+
+div.downloads {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    flex-grow: 1;
+    font-size: 1.8rem;
+    padding: 0.2rem;
+    width: 100%;
+    border: 1rem solid hsl(198, 16%, 84%);
+    overflow-x: hidden;
+    background-color: white;
+}
+
+div.download {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    width: 100%;
+}
+
+@media (max-width: 300px) {
+    * {
+        all: revert !important;
+    }
+}
